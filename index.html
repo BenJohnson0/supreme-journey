@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For Elif</title>
+<style>
+  :root {
+    --bg1: #1b1033;
+    --bg2: #3b1c4a;
+    --bg3: #6b2a5a;
+    --accent: #ff7aa8;
+    --soft: #ffd6e5;
+    --text: #fff4f8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--text);
+    background: linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* floating hearts */
+  .hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .heart {
+    position: absolute;
+    bottom: -40px;
+    color: var(--accent);
+    opacity: 0;
+    animation: rise linear infinite;
+    user-select: none;
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: .8; }
+    90%  { opacity: .6; }
+    100% { transform: translateY(-110vh) translateX(var(--drift)) rotate(var(--spin)); opacity: 0; }
+  }
+
+  /* main card */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+    padding: 2.5rem 2rem;
+    animation: fadeUp 1.6s ease-out both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .beat {
+    font-size: 4.5rem;
+    display: inline-block;
+    color: var(--accent);
+    filter: drop-shadow(0 0 18px rgba(255, 122, 168, .6));
+    animation: heartbeat 1.6s ease-in-out infinite;
+    cursor: pointer;
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15%      { transform: scale(1.22); }
+    30%      { transform: scale(1); }
+    45%      { transform: scale(1.14); }
+    60%      { transform: scale(1); }
+  }
+
+  h1 {
+    margin-top: 1rem;
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: normal;
+    letter-spacing: .02em;
+  }
+  h1 span { color: var(--accent); font-style: italic; }
+
+  p.msg {
+    margin-top: 1.25rem;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--soft);
+    min-height: 5.5em;
+  }
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: var(--soft);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .hint {
+    margin-top: 2rem;
+    font-size: .85rem;
+    opacity: .55;
+    letter-spacing: .08em;
+  }
+
+  /* twinkling stars */
+  .star {
+    position: fixed;
+    width: 3px; height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: .2;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle { 50% { opacity: .9; transform: scale(1.6); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .heart, .beat, .star, .cursor { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hearts" id="hearts"></div>
+
+<main>
+  <div class="beat" id="beat" title="Click me">❤</div>
+  <h1>Hi, <span>Elif</span></h1>
+  <p class="msg"><span id="typed"></span><span class="cursor"></span></p>
+  <div class="hint">tap the heart</div>
+</main>
+
+<script>
+  // Edit this message to whatever you want to say
+  const message = "Distance is just a number on a map. Every day, you make my world a little brighter. I can't wait until you're here.";
+
+  // typewriter
+  const typed = document.getElementById('typed');
+  let i = 0;
+  (function type() {
+    if (i <= message.length) {
+      typed.textContent = message.slice(0, i++);
+      setTimeout(type, 55);
+    }
+  })();
+
+  // stars
+  for (let s = 0; s < 40; s++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + 'vw';
+    star.style.top = Math.random() * 100 + 'vh';
+    star.style.animationDelay = Math.random() * 3 + 's';
+    star.style.animationDuration = 2 + Math.random() * 3 + 's';
+    document.body.appendChild(star);
+  }
+
+  // floating hearts
+  const container = document.getElementById('hearts');
+  function spawnHeart(x) {
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = Math.random() > .5 ? '❤' : '♥';
+    h.style.left = (x ?? Math.random() * 100) + 'vw';
+    h.style.fontSize = 12 + Math.random() * 26 + 'px';
+    h.style.animationDuration = 6 + Math.random() * 6 + 's';
+    h.style.setProperty('--drift', (Math.random() * 120 - 60) + 'px');
+    h.style.setProperty('--spin', (Math.random() * 60 - 30) + 'deg');
+    container.appendChild(h);
+    setTimeout(() => h.remove(), 13000);
+  }
+  setInterval(() => spawnHeart(), 500);
+
+  // burst on click
+  document.getElementById('beat').addEventListener('click', () => {
+    for (let k = 0; k < 18; k++) setTimeout(() => spawnHeart(30 + Math.random() * 40), k * 40);
+  });
+</script>
+</body>
+</html>
